@@ -2,7 +2,7 @@
 
 **Supervision Analysis, Capability Trade-offs, and Adaptive Objective Routing in Continued Pre-training via Off-Policy Distillation**
 
-Jiangan Yuan\*, Zhixuan Li\*, Han Xu — Baidu Inc.
+Jiangan Yuan\*, Zhixuan Li\*, Han Xu
 (\* equal contribution)
 
 [📄 Paper (PDF)](./Let_the_Data_Decide.pdf) · [arXiv](#) · [Citation](#citation)
