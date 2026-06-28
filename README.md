@@ -10,6 +10,7 @@ Jiangan Yuan\*, Zhixuan Li\*, Han Xu
 ---
 
 ## TL;DR
+[Chinese Version HERE](./README_zh.md)
 
 We study top-`k`-truncated, temperature-scaled off-policy distillation as a **structured supervision design problem**, not a global hyperparameter choice. By decomposing the LM vs. KD gradient gap at the token level and introducing diagnostic metrics that quantify **teacher–data alignment**, we show that
 
