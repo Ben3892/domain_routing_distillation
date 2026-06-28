@@ -16,7 +16,7 @@ class M3_Model(GPTModel):
 
     def __init__(
             self,
-            config: LightningConfig,
+            config: M3_ModelConfig,
             transformer_layer_spec: ModuleSpec,
             vocab_size: int,
             max_sequence_length: int,
