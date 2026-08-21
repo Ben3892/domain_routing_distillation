@@ -1,6 +1,6 @@
-# Let the Data Decide
-
-**Supervision Analysis, Capability Trade-offs, and Adaptive Objective Routing in Continued Pre-training via Off-Policy Distillation**
+# Domain-level Objective Routing
+**Let the Data Decide - 
+Supervision Analysis, Capability Trade-offs, and Adaptive Objective Routing in Continued Pre-training via Off-Policy Distillation**
 
 Jiangan Yuan\*, Zhixuan Li\*, Han Xu
 (\* equal contribution)
