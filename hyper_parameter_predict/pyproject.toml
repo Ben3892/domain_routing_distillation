@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "distillation-hparam-predict"
+version = "0.1.0"
+description = "Predict validation loss from domain-specific distillation hyperparameters"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+  "joblib>=1.3,<2",
+  "matplotlib>=3.7,<4",
+  "numpy>=1.24,<2",
+  "pandas>=2.0,<3",
+  "scikit-learn>=1.3,<2",
+]
+
+[project.optional-dependencies]
+boosting = [
+  "lightgbm>=4.0,<5",
+  "xgboost>=2.0,<4",
+]
+dev = ["pytest>=7,<9"]
+
+[project.scripts]
+distill-hparam-train = "hyper_parameter_predict.train:main"
+distill-hparam-suggest = "hyper_parameter_predict.suggest:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
