@@ -20,6 +20,7 @@ jobs:
           python3 - <<'PY'
           import json
           import os
+          from urllib.error import HTTPError
           from urllib.parse import urlencode
           from urllib.request import Request, urlopen
 
@@ -50,8 +51,13 @@ jobs:
                       "User-Agent": "domain-routing-pr-publisher",
                   },
               )
-              with urlopen(request, timeout=30) as response:
-                  return json.load(response)
+              try:
+                  with urlopen(request, timeout=30) as response:
+                      return json.load(response)
+              except HTTPError as error:
+                  if error.code != 404:
+                      print(f"GitHub HTTP {error.code} for {path}: {json.load(error).get('message', '')}", flush=True)
+                  raise
 
           def check_commit(commit):
               parents = [parent["sha"] for parent in commit["parents"]]
@@ -59,8 +65,6 @@ jobs:
                   raise RuntimeError("Branch differs from the tested experiment changes")
               if not commit["author"]["email"].endswith(bot + "@users.noreply.github.com"):
                   raise RuntimeError("Unexpected commit author")
-
-          from urllib.error import HTTPError
 
           try:
               sha = api("/git/ref/heads/" + branch)["object"]["sha"]
