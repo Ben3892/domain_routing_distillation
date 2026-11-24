@@ -1,0 +1,85 @@
+name: Open domain routing experiment PR as GitHub Actions bot
+on:
+  push:
+    branches:
+      - codex/actions-domain-routing-pr
+permissions:
+  contents: write
+  pull-requests: write
+concurrency: domain-routing-pr-publisher
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Open the PR from the tested tree
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from urllib.parse import urlencode
+          from urllib.request import Request, urlopen
+
+          repository = "Ben3892/domain_routing_distillation"
+          base = "main"
+          base_sha = "b91eeeb6761f50da992ae0e0b590a020c1e13200"
+          tree = "39d6934d809f45ac07c1673f86f1bf85c9c49e2f"
+          branch = "codex/domain-routing-experiment-launcher"
+          title = "Add an experiment launcher and matched controls for domain routing"
+          body = "## Changes\n\n- Add a CPU experiment launcher with five presets, single-factor Top-k and temperature sweeps, and a synthetic bigram training smoke test.\n- Add fixed global mixing and random hard-routing controls that match the domain-routing KD budget.\n- Document the launch commands, offline teacher-cache format, and missing components for Megatron reproduction. The guide also identifies the current reuse of training shards for teacher validation and test.\n\n## Validation\n\n- `python3 -m unittest discover -s tests -v` passed all 3 tests.\n- `python3 projects/run_experiment.py --matrix --smoke` passed all 11 settings. Domain routing and both matched controls used a global KD weight of 0.33.\n- The CPU fixture uses synthetic data. GPU training and the paper benchmarks still require the Megatron components listed in the guide."
+          bot = "github-actions[bot]"
+
+          if os.environ["GITHUB_REPOSITORY"] != repository:
+              raise SystemExit("Unexpected repository")
+
+          root = "/repos/" + repository
+          token = os.environ["GH_TOKEN"]
+
+          def api(path, payload=None):
+              request = Request(
+                  "https://api.github.com" + root + path,
+                  data=None if payload is None else json.dumps(payload).encode(),
+                  headers={
+                      "Authorization": "Bearer " + token,
+                      "Accept": "application/vnd.github+json",
+                      "Content-Type": "application/json",
+                      "X-GitHub-Api-Version": "2022-11-28",
+                      "User-Agent": "domain-routing-pr-publisher",
+                  },
+              )
+              with urlopen(request, timeout=30) as response:
+                  return json.load(response)
+
+          def check_commit(commit):
+              parents = [parent["sha"] for parent in commit["parents"]]
+              if commit["tree"]["sha"] != tree or parents != [base_sha]:
+                  raise RuntimeError("Branch differs from the tested experiment changes")
+              if not commit["author"]["email"].endswith(bot + "@users.noreply.github.com"):
+                  raise RuntimeError("Unexpected commit author")
+
+          from urllib.error import HTTPError
+
+          try:
+              sha = api("/git/ref/heads/" + branch)["object"]["sha"]
+          except HTTPError as error:
+              if error.code != 404:
+                  raise
+              commit = api("/git/commits", {"message": title, "tree": tree, "parents": [base_sha]})
+              check_commit(commit)
+              sha = commit["sha"]
+              api("/git/refs", {"ref": "refs/heads/" + branch, "sha": sha})
+          else:
+              check_commit(api("/git/commits/" + sha))
+
+          query = urlencode({"head": repository.split("/")[0] + ":" + branch, "base": base, "state": "open"})
+          matches = api("/pulls?" + query)
+          pr = matches[0] if matches else api(
+              "/pulls", {"title": title, "body": body, "head": branch, "base": base}
+          )
+          if (pr["user"]["login"], pr["head"]["sha"]) != (bot, sha):
+              raise RuntimeError("Unexpected pull request author or head")
+          print(pr["html_url"])
+          PY
