@@ -26,11 +26,11 @@ jobs:
 
           repository = "Ben3892/domain_routing_distillation"
           base = "main"
-          base_sha = "b91eeeb6761f50da992ae0e0b590a020c1e13200"
-          tree = "39d6934d809f45ac07c1673f86f1bf85c9c49e2f"
+          base_sha = "9a5346bb518e312990ea03d0db5263561da529d2"
+          tree = "eeea1cc102de0ebd18f19cf810de25870d0db499"
           branch = "codex/domain-routing-experiment-launcher"
           title = "Add an experiment launcher and matched controls for domain routing"
-          body = "## Changes\n\n- Add a CPU experiment launcher with five presets, single-factor Top-k and temperature sweeps, and a synthetic bigram training smoke test.\n- Add fixed global mixing and random hard-routing controls that match the domain-routing KD budget.\n- Document the launch commands, offline teacher-cache format, and missing components for Megatron reproduction. The guide also identifies the current reuse of training shards for teacher validation and test.\n\n## Validation\n\n- `python3 -m unittest discover -s tests -v` passed all 3 tests.\n- `python3 projects/run_experiment.py --matrix --smoke` passed all 11 settings. Domain routing and both matched controls used a global KD weight of 0.33.\n- The CPU fixture uses synthetic data. GPU training and the paper benchmarks still require the Megatron components listed in the guide."
+          body = "## Changes\n\n- Add a CPU launcher and a reproducibility guide cross-referenced to the paper's experimental sections, tables, and evaluation protocol.\n- Cover LM and KD baselines, Top-k and temperature sweeps, domain routing, and the four published OTMass and Entropy thresholds.\n- Provide additional matched-budget fixed-mix and random-routing controls. Document the offline teacher cache and the prerequisites for Megatron GPU reproduction.\n\n## Validation\n\n- All five local regression tests and all 13 synthetic CPU settings in the paper matrix passed.\n- The original 11-setting control matrix remains available. GPU training and benchmark reproduction require the Megatron components, original checkpoint, and original data listed in the guide."
           bot = "github-actions[bot]"
 
           if os.environ["GITHUB_REPOSITORY"] != repository:
@@ -39,10 +39,11 @@ jobs:
           root = "/repos/" + repository
           token = os.environ["GH_TOKEN"]
 
-          def api(path, payload=None):
+          def api(path, payload=None, method=None):
               request = Request(
                   "https://api.github.com" + root + path,
                   data=None if payload is None else json.dumps(payload).encode(),
+                  method=method,
                   headers={
                       "Authorization": "Bearer " + token,
                       "Accept": "application/vnd.github+json",
@@ -66,15 +67,15 @@ jobs:
               if not commit["author"]["email"].endswith(bot + "@users.noreply.github.com"):
                   raise RuntimeError("Unexpected commit author")
 
-          try:
-              sha = api("/git/ref/heads/" + branch)["object"]["sha"]
-          except HTTPError as error:
-              if error.code != 404:
-                  raise
-              commit = api("/git/commits", {"message": title, "tree": tree, "parents": [base_sha]})
+          sha = api("/git/ref/heads/" + branch)["object"]["sha"]
+          if sha == base_sha:
+              commit = api("/git/commits", {
+                  "message": "Cover the paper experiments and evaluation protocol",
+                  "tree": tree, "parents": [base_sha],
+              })
               check_commit(commit)
               sha = commit["sha"]
-              api("/git/refs", {"ref": "refs/heads/" + branch, "sha": sha})
+              api("/git/refs/heads/" + branch, {"sha": sha, "force": False}, method="PATCH")
           else:
               check_commit(api("/git/commits/" + sha))
 
