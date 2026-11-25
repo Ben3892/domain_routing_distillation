@@ -24,10 +24,10 @@ This reframes off-policy distillation in continued pre-training as **data-condit
 
 ## Running experiments
 
-Generate the baseline and ablation matrix from the repository root:
+Generate the paper's training matrix from the repository root:
 
 ```bash
-python3 projects/run_experiment.py --matrix
+python3 projects/run_experiment.py --paper-matrix
 ```
 
 Add `--smoke` to run the presets on synthetic CPU data with NumPy. See the [experiment guide](projects/README.md) for the configuration matrix and the dependencies required to reproduce the Megatron GPU runs.

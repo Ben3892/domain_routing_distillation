@@ -30,7 +30,7 @@ Jiangan Yuan*，Zhixuan Li*，Han Xu
 
 # 实验启动
 
-在仓库根目录运行 `python3 projects/run_experiment.py --matrix`，生成基线和消融实验矩阵。安装 NumPy 后加 `--smoke`，可用合成数据跑 CPU 检查。[实验指南](projects/README.md)列出了配置、指标和 Megatron GPU 复现依赖。
+在仓库根目录运行 `python3 projects/run_experiment.py --paper-matrix`，生成论文训练矩阵。安装 NumPy 后加 `--smoke`，可用合成数据跑 CPU 检查。[实验指南](projects/README.md)列出了配置、指标和 Megatron GPU 复现依赖。
 
 # 关键贡献（Key Contributions）
 
