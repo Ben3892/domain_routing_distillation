@@ -22,6 +22,16 @@ This reframes off-policy distillation in continued pre-training as **data-condit
 
 ---
 
+## Running experiments
+
+Generate the paper's training matrix from the repository root:
+
+```bash
+python3 projects/run_experiment.py --paper-matrix
+```
+
+Add `--smoke` to run the presets on synthetic CPU data with NumPy. See the [experiment guide](projects/README.md) for the configuration matrix and the dependencies required to reproduce the Megatron GPU runs.
+
 ## Key Contributions
 
 1. **Capability divergence is structural, not noise.** Under identical training data, initialization, and hyperparameters, LM and KD induce *systematically distinct* capability profiles — LM dominates on high-difficulty reasoning, math, and Pass@K (e.g. +29.86 on MATH-500 Pass@16, +23.33 on AIME 2025 Pass@128); KD dominates on commonsense, factual retrieval, reading comprehension, and structured program synthesis. Neither is uniformly better.

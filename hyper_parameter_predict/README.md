@@ -35,7 +35,7 @@ experiment_id,stem_temperature,stem_topk,stem_lm_loss_weight,general_temperature
 建议在本目录创建独立环境：
 
 ```bash
-cd /Users/ben/git_projects/distillation_research/hyper_parameter_predict
+cd hyper_parameter_predict
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -U pip
